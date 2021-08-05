@@ -1,0 +1,5 @@
+version: '3'
+
+services:
+  wisdoApiApp:
+    command: sh -c "npm install && npm start"
