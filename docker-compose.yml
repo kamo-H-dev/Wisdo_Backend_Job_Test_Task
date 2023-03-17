@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  wisdoApiApp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wisdoapiapp:v1
+    container_name: wisdo_api_app
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MONGO_USERNAME=$MONGO_USERNAME
+      - MONGO_PASSWORD=$MONGO_PASSWORD
+      - MONGO_HOSTNAME=wisdodb
+      - MONGO_PORT=$MONGO_PORT
+      - MONGO_DB=$MONGO_DB
+    ports:
+      - "${LOCAL_PORT}:5000"
+    volumes:
+      - .:/home/node/app
+    networks:
+      - app-network
+    command: sh -c "npm install && npm run dev"
+
+  wisdodb:
+    image: mongo:5.0
+    container_name: wisdo_mongo_db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=$MONGO_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD=$MONGO_PASSWORD
+    volumes:
+      - ${MONGO_DB_PATH}:/data/db
+    networks:
+      - app-network
+    ports:
+      - "${MONGO_LOCAL_PORT}:27017"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
